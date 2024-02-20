@@ -1,0 +1,8 @@
+---
+# Install Packages
+- name: Install | system packages
+  package:
+    name: "{{ item }}"
+  loop: "{{ system_packages }}"
+  environment: '{{ proxy_env | default({}) }}'
+  tags: install_packages

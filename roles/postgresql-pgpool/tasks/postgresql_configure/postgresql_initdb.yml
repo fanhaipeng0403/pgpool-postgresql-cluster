@@ -1,0 +1,51 @@
+---
+
+# Create  PostgreSQL archive directory
+#- name: PostgreSQL | archive  | make sure PostgreSQL archive directory {{ postgresql_archive_dir }}
+#  file:
+#    path: "{{ postgresql_archive_dir }}"
+#    owner: postgres
+#    group: postgres
+#    state: directory
+#  tags: [postgresql, create_archive_dir]
+
+
+# when postgresql NOT exists
+- block:
+    - name: PostgreSQL | intidb | make sure PostgreSQL data directory "{{ postgresql_data_dir }}" exists
+      file:
+        path: "{{ postgresql_data_dir }}"
+        owner: postgres
+        group: postgres
+        state: directory
+        mode: 0700
+
+    - name: PostgreSQL | intidb | check that data directory "{{ postgresql_data_dir }}" is not initialized
+      stat:
+        path: "{{ postgresql_data_dir }}/PG_VERSION"
+      register: pgdata_initialized
+
+#    - fail:
+#        msg: "Whoops! data directory {{ postgresql_data_dir }} is already initialized"
+#      when:   pgdata_initialized.stat.exists
+#      tags: [ postgresql, postgresql_check_init ]
+
+    - name:  PostgreSQL | intidb | Ensure PostgreSQL database is initialized.
+      command: >
+        {{ postgresql_bin_dir }}/initdb -D {{ postgresql_data_dir }}
+        --locale={{ postgresql_locale }} --encoding={{ postgresql_encoding }}
+        {% if postgresql_data_checksums and postgresql_version is version_compare('9.3', '>=') %}--data-checksums{% endif %}
+      become: yes
+      become_user: postgres
+      when: not pgdata_initialized.stat.exists and ansible_os_family == "RedHat"
+
+#    - name:  PostgreSQL | intidb | PostgreSQL database  start.
+#      service:
+#        name: postgresql-{{ postgresql_version }}
+#        state: started
+#        enabled: yes
+#      when: ansible_os_family == "RedHat"
+      
+  when: is_master == "true"
+  tags: [ postgresql, initdb ]
+#when postgresql NOT exists

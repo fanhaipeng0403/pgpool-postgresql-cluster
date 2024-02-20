@@ -1,0 +1,154 @@
+---
+
+#  add .pgpass
+- name: PostgreSQL | configure | add .pagpass
+  template:
+    src: templates/pgpass.j2
+    dest: "{{ postgresql_home_dir }}/.pgpass"
+    owner: postgres
+    group: postgres
+    mode: 0600
+
+# Configure Pgpool
+- name: Pgpool | Pgpool Configuration | pgpool.conf
+  template:
+    src: templates/pgpool.conf.j2
+    dest: "{{ pgpool_conf_dir }}/pgpool.conf"
+    mode: 0640
+
+# Failover configuration
+- name: Pgpool | Failover configuration | failover.sh script
+  template:
+    src: templates/failover.sh.j2
+    dest: "{{ pgpool_conf_dir }}/failover.sh"
+    owner: postgres
+    group: postgres
+    mode: 0755
+
+# Follow master configuration
+- name: Pgpool | Failover configuration | follow_master.sh script
+  template:
+    src: templates/follow_master.sh.j2
+    dest: "{{ pgpool_conf_dir }}/follow_master.sh"
+    owner: postgres
+    group: postgres
+    mode: 0755
+
+
+
+# Client Authentication Configuration
+- name: Pgpool | Client Authentication Configuration | Set pgpool and postgres user's authentication method
+  template:
+    src: templates/pool_hba.conf.j2
+    dest: "{{ pgpool_conf_dir }}/pool_hba.conf"
+    mode: 0644
+
+
+#- name: Pgpool | Client Authentication Configuration | create the .pgpoolkey file in root user's home directory.
+#  copy:
+#    content: |
+#      {{ pgpool_pgpoolkey }}
+#    dest: ~/.pgpoolkey
+#    mode: 0600
+
+- name: Pgpool | Client Authentication Configuration | regist {{ postgresql_superuser_username }} and  password in file pool_passwd
+  command: "pg_md5 -m -u {{ postgresql_superuser_username }} {{ postgresql_superuser_password }}"
+#  command: "pg_enc -m -k /root/.pgpoolkey -u {{ postgresql_superuser_username }} {{ postgresql_superuser_password }}"
+
+- name: Pgpool | Client Authentication Configuration | regist {{ postgresql_pgpool_username }} and password in file pool_passwd
+  command: "pg_md5 -m -u {{ postgresql_pgpool_username }} {{ postgresql_pgpool_password }}"
+#  command: "pg_enc -m -k /root/.pgpoolkey -u {{ postgresql_pgpool_username }} {{ postgresql_pgpool_password }}"
+
+
+#  Watchdog Configuration
+
+#/etc/sysconfig/pgpool Configuration
+
+- name: Pgpool | Pgpool Configuration | /etc/sysconfig/pgpool
+  template:
+    src: templates/pgpool.j2
+    dest: "/etc/sysconfig/pgpool"
+    mode: 0644
+
+# Logging
+- name: Pgpool | Logging Configuration | Add pgpool in /etc/logrotate.d/
+  copy:
+    content: |
+      {{ pgpool_log_dir }}/pgpool.log
+      {
+        missingok
+        sharedscripts
+        postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+      }
+    dest: /etc/logrotate.d/pgpool
+
+- name: Pgpool | Logging Configuration | Setting logrotate
+  copy:
+    content: |
+      LOCAL1.*        /var/log/pgpool-II/pgpool.log
+    dest: /etc/rsyslog.d/pgpool.conf
+
+- name: Pgpool | Logging Configuration | Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted
+
+# PCP Command Configuration
+- name: Pgpool | PCP Command Configuration | creat  md5 encrypted password
+  command: "pg_md5 {{ pgpool_pcp_password }}"
+  register: passwd_result
+
+- name: Pgpool | PCP Command Configuration | Specify user name and password in {{ pgpool_conf_dir }}/pcp.conf
+  copy:
+    content: |
+      {{ pgpool_pcp_username }}:{{ passwd_result.stdout }}
+    dest: "{{ pgpool_conf_dir }}/pcp.conf"
+    mode: 0644
+
+- name: Pgpool | Logging Configuration | Create .pcppass in the home directory of Pgpool-II startup user (postgres user).
+  become: yes
+  become_user: postgres
+  copy:
+    content: |
+      localhost:{{ pgpool_pcp_port }}:{{ pgpool_pcp_username }}:{{ pgpool_pcp_password }}
+      {{ pgpool_vip }}:{{ pgpool_pcp_port }}:{{ pgpool_pcp_username }}:{{ pgpool_pcp_password }}
+    dest: ~/.pcppass
+    mode: 0600
+
+- name: Pgpool | Logging Configuration | Create .pcppass link for root user.
+  file:
+    src: "{{postgresql_home_dir}}/.pcppass"
+    dest: ~/.pcppass
+    state: link
+
+# Pgpool start service
+- name: Pgpool | start Pgpool service
+  service:
+    name: pgpool
+    state: started
+    enabled: yes
+#  when: is_master == "true"
+
+# Set up PostgreSQL standby server
+- name: Pgpool | wait Pgpool service
+  command: sleep 60
+
+- block:
+    - name: Pgpool |  Set up PostgreSQL standby server
+      command: "pcp_recovery_node -h localhost -p {{ pgpool_pcp_port }} -U {{ pgpool_pcp_username }} -n {{ index+1 }} -w"
+      register: setup_standby_result
+      until: setup_standby_result.rc == 0
+      retries: 1
+      delay: 60
+      loop: "{{groups['replication'] }}"
+      loop_control:
+        index_var: index
+    - debug:
+        var: "{{ item.stdout_lines }}"
+      loop: "{{ setup_standby_result.results}}"
+      loop_control:
+        index_var: index
+
+  when: is_master == "true"

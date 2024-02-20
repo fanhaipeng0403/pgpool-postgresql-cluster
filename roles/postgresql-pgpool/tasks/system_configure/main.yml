@@ -1,0 +1,54 @@
+---
+# Hostname
+- include_tasks: hostname.yml
+  when: ansible_virtualization_type !="docker" and hostname is defined and hostname | length > 0
+  ignore_errors: yes
+  tags: [ hostname, configure ]
+
+# Kernel
+- include_tasks: sysctl.yml
+  when: sysctl_conf is defined and sysctl_conf | length > 0
+  ignore_errors: no
+  tags: [ sysctl, kernel, configure ]
+
+# # Transparent Huge Pages
+- include_tasks: transparent_huge_pages.yml
+  when: disable_thp is defined and disable_thp == "true"
+  ignore_errors: no
+  tags: [ disable_thp, configure ]
+
+# limits
+- include_tasks: pam_limits.yml
+  when: set_limits is defined and set_limits == "true"
+  ignore_errors: yes
+  tags: [ limits, configure ]
+
+# I/O Scheduler
+- include_tasks: io_scheduler.yml
+  when: (set_scheduler is defined) and (set_scheduler == "true") and (scheduler | length > 0)
+  ignore_errors: yes
+  tags: [ scheduler, configure ]
+
+#Locales
+- include_tasks: locales.yml
+  when: locales is defined and locales | length > 0
+  ignore_errors: yes
+  tags: [ locales, configure ]
+
+# TimeZone
+- include_tasks: timezone.yml
+  when: timezone is defined and timezone | length > 0
+  ignore_errors: yes
+  tags: [ timezone, configure ]
+
+# NTP
+- include_tasks: ntp.yml
+  when: ntp_enabled is defined and ntp_enabled == "true"
+  ignore_errors: yes
+  tags: [ ntp, configure ]
+
+# SSH Keys
+- include_tasks: ssh-keys.yml
+  when: enable_SSH_Key_based_authentication is defined and enable_SSH_Key_based_authentication == "true"
+  ignore_errors: yes
+  tags: [ ssh_keys, configure ]

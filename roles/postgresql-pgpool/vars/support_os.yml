@@ -1,0 +1,12 @@
+---
+# "Check system" variables
+
+os_valid_distributions:
+  - CentOS
+  - OracleLinux
+
+
+os_minimum_versions:
+  RedHat: 7
+  CentOS: 7
+  OracleLinux: 7

@@ -1,0 +1,17 @@
+---
+
+- name: restart postgresql
+  become: yes
+  become_user: postgres
+  command: "{{ postgresql_bin_dir }}/pg_ctl restart -D {{ postgresql_data_dir }} -m fast"
+  register: restart_result
+  until: restart_result_result.rc == 0
+  retries: 3
+  delay: 10
+
+- name: reload postgresql
+  become: yes
+  become_user: postgres
+  command: "{{ postgresql_bin_dir }}/pg_ctl reload -D {{ postgresql_data_dir }} "
+  register: reload_result
+  failed_when: reload_result.rc != 0

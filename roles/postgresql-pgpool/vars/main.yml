@@ -1,0 +1,19 @@
+---
+
+
+## Set PostgreSQL database username and password
+postgresql_superuser_username: "postgres"
+#postgresql_superuser_password: "postgres"
+postgresql_replication_username: "repl"
+#postgresql_replication_password: "repl"
+postgresql_pgpool_username: "pgpool"
+#postgresql_pgpool_password: "pgpool"
+#
+## Set Pgpool username and password
+pgpool_pcp_username: "pgpool"
+#pgpool_pcp_password: "pgpool"
+#
+## Set Cluster vip
+#pgpool_vip: "172.28.1.100"
+#pgpool_vip_dev: "eth0"
+#pgpool_vip_dev_label: "{{ pgpool_vip_dev }}:0"

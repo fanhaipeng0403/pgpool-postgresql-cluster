@@ -1,0 +1,54 @@
+version: '3'
+services:
+  ansible:
+    build: ansible
+    image: local/c7-ansible
+    hostname: ansible
+    privileged: true
+    restart: always
+    networks:
+      db_net:
+        ipv4_address: 172.28.1.2
+    ports:
+    - "8888:8888"
+    volumes:
+      - ../../:/home/postgresql-cluster
+
+  node1:
+    build: centos
+    image: local/c7-node
+    hostname: node1
+    privileged: true
+    restart: always
+    networks:
+      db_net:
+        ipv4_address: 172.28.1.11
+
+  node2:
+    image: local/c7-node
+    depends_on:
+      - node1
+    hostname: node2
+    privileged: true
+    restart: always
+    networks:
+      db_net:
+        ipv4_address: 172.28.1.12
+
+  node3:
+    image: local/c7-node
+    depends_on:
+      - node1
+    hostname: node3
+    privileged: true
+    restart: always
+    networks:
+      db_net:
+        ipv4_address: 172.28.1.13
+
+networks:
+  db_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.28.1.0/24"

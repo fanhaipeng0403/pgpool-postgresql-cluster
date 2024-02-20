@@ -1,0 +1,15 @@
+---
+
+- name: Linux PAM limits | load ip_conntrack
+  command: modprobe ip_conntrack
+  ignore_errors: yes
+
+- name: sysctl | Setting Kernel Parameters
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: "yes"
+    state: "present"
+    reload: "yes"
+  loop: "{{ sysctl_conf | flatten(1) }}"
+  tags: [ sysctl, kernel ]

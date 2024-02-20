@@ -1,0 +1,81 @@
+---
+
+# Configure PostgreSQL
+- block:
+    # Online Recovery Configurations
+    - name: PostgreSQL | Pgpool Online Recovery Configurations | recovery_1st_stage script
+      template:
+        src: templates/recovery_1st_stage.j2
+        dest: "{{ postgresql_data_dir }}/recovery_1st_stage"
+        owner: postgres
+        group: postgres
+        mode: 0755
+
+    - name: PostgreSQL | Pgpool Online Recovery Configurations  | pgpool_remote_start script
+      template:
+        src: templates/pgpool_remote_start.j2
+        dest: "{{ postgresql_data_dir }}/pgpool_remote_start"
+        owner: postgres
+        group: postgres
+        mode: 0755
+
+ #  Update pg_hba.conf
+    - name: PostgreSQL | configure | update pg_hba.conf
+      template:
+        src: templates/pg_hba.conf.j2
+        dest: "{{ postgresql_conf_dir }}/pg_hba.conf"
+        owner: postgres
+        group: postgres
+        mode: 0640
+
+    - name: PostgreSQL | configure | update postgresql.conf
+      template:
+        src: "templates/{{ item }}.j2"
+        dest: "{{ postgresql_conf_dir }}/{{ item }}"
+        owner: postgres
+        group: postgres
+        mode: 0640
+      with_items:
+        - "postgresql.conf"
+        - "postgresql.replication.conf"
+
+#    - name: PostgreSQL | configure | restart postgresql
+#      become: yes
+#      become_user: postgres
+#      command: "{{ postgresql_bin_dir }}/pg_ctl restart -D {{ postgresql_data_dir }}"
+#      register: restart_result
+#      until: restart_result.rc == 0
+#      retries: 3
+#      delay: 10
+
+#    - name: PostgreSQL | configure | Check PostgreSQL is started
+#      become: yes
+#      become_user: postgres
+#      command: "{{ postgresql_bin_dir }}/pg_isready -p {{ postgresql_port }}"
+#      register: pg_isready_result
+
+
+    - name: PostgreSQL | configure | Make sure PostgreSQ Restart
+      command: "{{ postgresql_bin_dir }}/pg_ctl stop -D {{ postgresql_data_dir }} -m fast"
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+#      when: pg_isready_result.rc == 0
+
+    - name: PostgreSQL | configure | restart postgresql
+      become: yes
+      become_user: postgres
+      command: "{{ postgresql_bin_dir }}/pg_ctl start -D {{ postgresql_data_dir }}"
+      register: start_result
+      until: start_result.rc == 0
+      retries: 3
+      delay: 10
+
+
+#    - service:
+#        name: postgresql-{{ postgresql_version }}
+#        state: started
+#        enabled: yes
+
+  when: postgresql_exists != "true" and  is_master == "true"
+  tags: [ postgresql, postgresql_configure ]

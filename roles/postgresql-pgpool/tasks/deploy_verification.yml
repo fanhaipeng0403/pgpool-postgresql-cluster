@@ -1,0 +1,110 @@
+---
+- block:
+    - name: list of iptables
+      command: "iptables -L -n "
+      register: iptables_result
+    - debug:
+        var: iptables_result.stdout_lines
+
+  ignore_errors: yes
+  tags: [ iptabels, iptabels_list ]
+
+- block:
+    - name: PostgreSQL list of databases
+      become: yes
+      become_user: postgres
+      command: "{{ postgresql_bin_dir }}/psql -p {{ postgresql_port }} -c \"SELECT d.datname as Name, pg_catalog.pg_get_userbyid(d.datdba) as Owner, pg_catalog.pg_encoding_to_char(d.encoding) as Encoding, d.datcollate as Collate, d.datctype as Ctype, CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT') THEN pg_catalog.pg_size_pretty(pg_catalog.pg_database_size(d.datname)) ELSE 'No Access' END as Size, t.spcname as Tablespace FROM pg_catalog.pg_database d JOIN pg_catalog.pg_tablespace t on d.dattablespace = t.oid WHERE not datistemplate ORDER BY 1\""
+      register: dbs_result
+    - debug:
+        var: dbs_result.stdout_lines
+  when: is_master == "true"
+  ignore_errors: yes
+  tags: [ databases, db_list ]
+
+- block:
+    - name: PostgreSQL Cluster list of nodes
+      become: yes
+      become_user: postgres
+      command: psql -h {{ pgpool_vip }} -p {{ pgpool_port }} -U {{ postgresql_pgpool_username }} postgres -c "show pool_nodes"
+      register: nodes_result
+      until: nodes_result.rc == 0
+      retries: 3
+      delay: 10
+    - debug:
+        var: nodes_result.stdout_lines
+#  when: is_master == "true"
+  ignore_errors: yes
+  tags: [ postgresql_cluster, nodes ]
+
+
+
+# Test streaming replication
+- block:
+    - name: Test streaming replication | Create table test_table in postgres
+      become: yes
+      become_user: postgres
+      postgresql_table:
+        name: test_table
+        columns:
+          - "id int"
+          - "message varchar(120)"
+
+    - name: Test streaming replication| Insert test record in postgres DB on   Primary Server
+      become: yes
+      become_user: postgres
+      postgresql_query:
+        db: postgres
+        query: INSERT INTO test_table (id, message) VALUES (1, 'This is test')
+
+  when: is_master == "true"
+  ignore_errors: no
+  tags: [ postgresql_cluster, test_streaming_replication ]
+
+- name: Test streaming replication | query test_table on Primary Server
+  become: yes
+  become_user: postgres
+  command: psql postgres -c "select * from test_table"
+  register: query_result
+  tags: [ postgresql_cluster, test_streaming_replication ]
+
+- debug:
+    var: query_result.stdout_lines
+  when: query_result.rc == 0
+  tags: [ postgresql_cluster, test_streaming_replication ]
+
+- block:
+    - name: Test streaming replication | drop table test_table in postgres db
+      become: yes
+      become_user: postgres
+      postgresql_table:
+        name: test_table
+        state: absent
+  when: is_master == "true"
+  ignore_errors: no
+  tags: [ postgresql_cluster, test_streaming_replication ]
+
+# Switching active/standby watchdog
+- block:
+    - name: Switching active/standby watchdog
+      command: pcp_watchdog_info -h {{ pgpool_vip }} -p {{ pgpool_pcp_port }} -U pgpool -w
+      register: nodes_result
+    - debug:
+        var: nodes_result.stdout_lines
+  when: is_master == "true"
+  ignore_errors: yes
+  tags: [ pcp_watchdog, nodes ]
+
+- block:
+    - name: PostgreSQL Cluster connection info
+      debug:
+        msg:
+          - +------------------------------------------------+
+          - "PostgreSQL Cluster  vip: {{ pgpool_vip }}"
+          - "PostgreSQL's port: {{ postgresql_port }}"
+          - "Pgpool's port: {{ pgpool_port }}"
+          - "PgpoolPCP's port: {{ pgpool_pcp_port }}"
+          - "PgpoolWatchdog's port: {{ pgpool_watchdog_port }}"
+          - +------------------------------------------------+
+  when: is_master == "true"
+  ignore_errors: yes
+  tags: conn_info

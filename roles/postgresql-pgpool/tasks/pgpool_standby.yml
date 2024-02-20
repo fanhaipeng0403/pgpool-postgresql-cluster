@@ -1,0 +1,10 @@
+---
+
+
+# Set up PostgreSQL standby server
+- name: Pgpool |  Set up PostgreSQL standby server
+  command: "pcp_recovery_node -h localhost -p {{ pgpool_pcp_port }} -U {{ pgpool_pcp_username }} -n {{ index+1 }} -w"
+  register: setup_standby_result
+- debug:
+    var: setup_standby_result.stdout_lines
+

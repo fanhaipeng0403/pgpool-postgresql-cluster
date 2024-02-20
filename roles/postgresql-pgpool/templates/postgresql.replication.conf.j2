@@ -1,0 +1,6 @@
+listen_addresses = '{{ postgresql_listen_addresses }}'
+port = {{ postgresql_port }}
+
+{% for pg in postgresql_parameters %}
+{{ pg.option }} = {{ pg.value }}
+{% endfor %}

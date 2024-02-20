@@ -1,0 +1,38 @@
+---
+
+- name: Checking vars | postgresql_superuser_password
+  fail:
+    msg: "postgresql_superuser_password  is required"
+  when: postgresql_superuser_password is not defined
+  tags: "check_vars"
+
+- name: Checking vars | postgresql_pgpool_password
+  fail:
+      msg: "postgresql_pgpool_password  is required"
+  when: postgresql_pgpool_password is not defined
+  tags: "check_vars"
+
+- name: Checking vars | postgresql_replication_password
+  fail:
+    msg: "postgresql_replication_password  is required"
+  when: postgresql_replication_password is not defined
+  tags: "check_vars"
+
+- name: Checking vars | pgpool_pcp_password
+  fail:
+    msg: "pgpool_pcp_password  is required"
+  when: pgpool_pcp_password is not defined
+  tags: "check_vars"
+
+- name: Checking vars | pgpool_vip
+  fail:
+    msg: "pgpool_vip  is required"
+  when: pgpool_vip is not defined
+  tags: "check_vars"
+
+- name: Checking vars | pgpool_vip_dev
+  fail:
+    msg: "pgpool_vip_dev  is required"
+  when: pgpool_vip_dev is not defined
+  tags: "check_vars"
+

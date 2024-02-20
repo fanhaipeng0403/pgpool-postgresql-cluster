@@ -1,0 +1,19 @@
+---
+# pgpool variables
+
+pgpool_pgpoolkey: "pgool@q!=="
+#pgpool_vip: "172.28.1.100"
+pgpool_vip_addr: "{{ pgpool_vip }}/24"
+pgpool_vip_dev_label: "{{ pgpool_vip_dev }}:0"
+
+pgpool_watchdog_port: 9000
+pgpool_port: 6432
+pgpool_wd_heartbeat_port: 9694
+pgpool_pcp_port: 9898
+
+#pgpool_pcp_username: "pgpool"
+#pgpool_pcp_password: "pgpool"
+
+pgpool_socket_file: "{{ pgpool_wd_ipc_socket_dir }}/.s.PGSQL.{{ pgpool_port }}"
+pgpool_pcp_socket_file: "{{ pgpool_pcp_socket_dir }}/.s.PGSQL.{{ pgpool_pcp_port }}"
+pgpool_wd_ipc_socket_file: "{{ pgpool_wd_ipc_socket_dir }}/.s.PGSQL.{{ pgpool_watchdog_port }}"

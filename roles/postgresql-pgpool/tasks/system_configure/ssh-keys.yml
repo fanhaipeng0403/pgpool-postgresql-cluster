@@ -1,0 +1,92 @@
+---
+
+# Configure SSH Key-Based Authentication
+- name: ssh-keys | check user "postgres" | create user if not already exist
+  user:
+    name: "postgres"
+    shell: /bin/bash
+    state: present
+
+
+
+- name: ssh-keys | create a 2048-bit SSH key for user "root" and "postgres" in ~/.ssh/{{ ssh_keyfile_name }} (if not already exist)
+  user:
+    name: "{{ item }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: ~{{item}}/.ssh/{{ ssh_keyfile_name }}
+  with_items:
+    - "root"
+    - "postgres"
+
+- name: ssh-keys | fetch key files from remote servers to ansible server
+  fetch:
+    src: "~{{ item }}/.ssh/{{ ssh_keyfile_name }}.pub"
+    dest: "files/{{item}}/{{ ansible_hostname }}-{{ ssh_keyfile_name }}.pub"
+    flat: yes
+  changed_when: false
+  with_items:
+    - "root"
+    - "postgres"
+
+- name: ssh-keys | copy key files and add to authorized_keys
+  authorized_key:
+    user: "{{ item }}"
+    state: "{{ ssh_key_state }}"
+    key: "{{ lookup('pipe','cat files/{{item}}/*{{ ssh_keyfile_name }}.pub') }}"
+    exclusive: no
+  with_items:
+    - "root"
+    - "postgres"
+
+# known_hosts
+- name: known_hosts | for each host, scan for its ssh public key
+  shell: "ssh-keyscan -trsa -p {{ ansible_ssh_port }} {{ item }}"
+  loop: "{{ ssh_known_hosts }}"
+  register: ssh_root_known_host_results
+  changed_when: false
+
+- name: known_hosts | for each host, add/update the public key in the "/root/.ssh/known_hosts"
+  known_hosts:
+    name: "{{ item.item }}"
+    key: "{{ item.stdout }}"
+    path: "~root/.ssh/known_hosts"
+  no_log: True
+  loop: "{{ ssh_root_known_host_results.results }}"
+
+- name: known_hosts | for each host, scan for its ssh public key
+  become: yes
+  become_user: "postgres"
+  shell: "ssh-keyscan -trsa -p {{ ansible_ssh_port }} {{ item }}"
+  loop: "{{ ssh_known_hosts }}"
+  register: ssh_postgres_known_host_results
+  changed_when: false
+
+- name: known_hosts | for each host, add/update the public key in the "~postgres/.ssh/known_hosts"
+  become: yes
+  become_user: "postgres"
+  known_hosts:
+    name: "{{ item.item }}"
+    key: "{{ item.stdout }}"
+    path: "~postgres/.ssh/known_hosts"
+  no_log: True
+  loop: "{{ ssh_postgres_known_host_results.results }}"
+
+- name: known_hosts | restart sshd service
+  service:
+    name: sshd
+    state: restarted
+
+#- name: reboot | ssh-keys to apply
+#  reboot:
+#    reboot_timeout: 10
+#    connect_timeout: 60
+#  register: reboot_result
+#  ignore_errors: yes
+#
+#- name: Wait for the reboot to complete if there was a change.
+#  wait_for_connection:
+#    connect_timeout: 10
+#    sleep: 5
+#    delay: 3
+#    timeout: 120

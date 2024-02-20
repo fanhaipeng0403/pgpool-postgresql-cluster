@@ -1,0 +1,63 @@
+---
+- name: Deploy PostgreSQL Cluster with Pgpool2
+  hosts: postgres_cluster
+  remote_user: root
+  become: true
+  become_method: sudo
+  any_errors_fatal: true
+  gather_facts: true
+
+  pre_tasks:
+    - include_vars:
+        dir: roles/postgresql-pgpool/vars
+    - name: fix nologin issue for docker | remove /var/run/nologin
+      file:
+        path: "/var/run/nologin"
+        state: absent
+      when: ansible_virtualization_type =="docker"
+  roles:
+    - role: firewall
+      when: ansible_virtualization_type !="docker"
+    - role: postgresql-pgpool
+
+
+
+  # finish (info)
+  tasks:
+    - import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
+      tags: [ cluster_info, cluster_status ]
+
+#  tasks:
+#    - block:
+#        - name: Clear postgreSQL data | Create dir ~/backup/postgres
+#          file:
+#            path: "~/backup/postgres"
+#            state: directory
+#            mode: '0755'
+#
+#        - name: Clear postgreSQL data | Archive {{ postgresql_data_dir }} to ~/backup/postgres
+#          archive:
+#            path: "{{ postgresql_data_dir }}"
+#            dest: "~/backup/postgres/{{ hostname }}_data_{{ ansible_date_time.iso8601_basic_short}}.zip"
+#            format: zip
+#
+#        - name: Clear postgreSQL data  | Remove postgreSQL data dir {{ postgresql_data_dir }}
+#          file:
+#            path: "{{ postgresql_data_dir }}"
+#            state: absent
+#          become: yes
+#          become_user: postgres
+#          ignore_errors: yes
+#      become: yes
+#      become_user: postgres
+
+#    - name: "{{ hostvars['server1']['ansible_facts']['default_ipv4']['address']  }}"
+#      template:
+#        src: test.j2
+#        dest: "~/test"
+#
+#    - name: Checking vars | postgresql_superuser_password
+#      fail:
+#        msg: "postgresql_superuser_password  is required"
+#      when: postgresql_superuser_password is not defined
+

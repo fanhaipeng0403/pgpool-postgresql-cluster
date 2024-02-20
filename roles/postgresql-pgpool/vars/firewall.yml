@@ -1,0 +1,24 @@
+---
+# Firewall (ansible-role-firewall)
+# https://github.com/geerlingguy/ansible-role-firewall
+firewall_state: restarted
+firewall_enabled_at_boot: true
+
+firewall_allowed_tcp_ports:
+  - "22"
+  - "3306"
+  - "{{ postgresql_port }}"
+  - "{{ pgpool_port }}"
+  - "{{ pgpool_watchdog_port }}"
+  - "{{ pgpool_pcp_port }}"
+
+firewall_allowed_udp_ports:
+  - "{{ pgpool_wd_heartbeat_port }}"
+
+firewall_additional_rules: []
+#  - "iptables -p vrrp -A INPUT -j ACCEPT"  # Keepalived (vrrp)
+#  - "iptables -p vrrp -A OUTPUT -j ACCEPT" # Keepalived (vrrp)
+
+ # disable firewalld (installed by default on RHEL/CentOS) or ufw (installed by default on Ubuntu)
+firewall_disable_firewalld: true
+firewall_disable_ufw: true

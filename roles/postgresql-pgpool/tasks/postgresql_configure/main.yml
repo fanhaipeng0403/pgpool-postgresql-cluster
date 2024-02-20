@@ -1,0 +1,43 @@
+---
+# Create  PostgreSQL archive directory
+- name: PostgreSQL | archive  | make sure PostgreSQL archive directory {{ postgresql_archive_dir }}
+  file:
+    path: "{{ postgresql_archive_dir }}"
+    owner: postgres
+    group: postgres
+    state: directory
+  tags: [postgresql, create_archive_dir]
+
+# Create  PostgreSQL log directory
+- name: PostgreSQL | log  | make sure PostgreSQL log directory {{ postgresql_log_dir }}
+  file:
+    path: "{{ postgresql_log_dir }}"
+    owner: postgres
+    group: postgres
+    state: directory
+  tags: [postgresql, create_log_dir]
+
+#  PostgreSQL   Configure
+- include_tasks: postgresql_initdb.yml
+  when: is_master is defined and is_master == "true"
+  tags: postgresql_initdb
+  
+#  PostgreSQL   Configure
+- include_tasks: postgresql_configure.yml
+  when: is_master is defined and is_master == "true"
+  tags: postgresql_configure
+  
+#  Create  PostgreSQL Users  
+- include_tasks: postgresql_users.yml
+  when: is_master is defined and is_master == "true"
+  tags: postgresql_users
+
+#  Create  PostgreSQL Databases
+- include_tasks: postgresql_databases.yml
+  when: is_master is defined and is_master == "true"
+  tags: postgresql_databases
+  
+  #  Add PostgreSQL Extensions
+- include_tasks: postgresql_extensions.yml
+  when:  is_master is defined and is_master == "true"
+  tags: postgresql_extensions  

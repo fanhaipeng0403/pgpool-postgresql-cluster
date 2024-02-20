@@ -1,0 +1,25 @@
+---
+# Variable configuration.
+#- name: Include support os variables .
+#  include_vars: "support_os.yml"
+
+- name: Include Debian variables .
+  include_vars: "{{ ansible_os_family }}.yml"
+  when: ansible_os_family == 'Debian'
+
+- name: Include RedHat variables .
+  include_vars: "{{ ansible_os_family }}.yml"
+  when:
+  - ansible_os_family == 'RedHat'
+
+- name: Include PostgreSQL variables .
+  include_vars: "postgresql.yml"
+  
+- name: Include Kernel variables .
+  include_vars: "pgpool.yml"
+  
+- name: Include Firewall variables .
+  include_vars: "firewall.yml"
+  
+- name: Include Kernel variables .
+  include_vars: "system.yml"

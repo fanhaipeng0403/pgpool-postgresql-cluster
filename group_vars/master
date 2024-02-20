@@ -1,0 +1,4 @@
+---
+
+is_master: 'true'
+ignore_exists_postgresql: 'false'

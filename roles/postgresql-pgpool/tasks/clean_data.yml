@@ -1,0 +1,103 @@
+---
+#- block:
+#    - name: Check PostgreSQL  | check that data directory "{{ postgresql_data_dir }}" is exists?
+#      stat:
+#        path: "{{ postgresql_data_dir }}/PG_VERSION"
+#      register: pgdata_initialized
+#    - fail:
+#        msg: "Whoops! 'ignore_exists_postgresql' is {{ignore_exists_postgresql}}, data directory {{ postgresql_data_dir }} is exists, Not execute clean !"
+#      when: pgdata_initialized.stat.exists
+#      tags: [ postgresql, postgresql_check_init ]
+#  when: ignore_exists_postgresql != "true"
+
+- name: Stop serivce | Stop Pgpool service on standby server
+  service:
+    name: pgpool
+    state: stopped
+  ignore_errors: yes
+#  when: is_master != "true"
+  tags: stop_pgpool
+
+- name: Clear Pgpool service  | Remove pgpool socket file ({{ pgpool_socket_file }})
+  file:
+    path: "{{ pgpool_socket_file }}"
+    state: absent
+  ignore_errors: yes
+  tags: clean_pgpool_stocket
+
+- name: Clear Pgpool service  | Remove pcp socket file ({{ pgpool_pcp_socket_file }})
+  file:
+    path: "{{ pgpool_pcp_socket_file }}"
+    state: absent
+  ignore_errors: yes
+  #  when: is_master != "true"
+  tags: clean_pgpool_stocket
+
+- name: Clear Pgpool service  | Remove pcppass file
+  file:
+    path: "~/.pcppass"
+    state: absent
+  ignore_errors: yes
+  #  when: is_master != "true"
+  tags: clean_pgpool_pcppass
+
+- name: PostgreSQL | Prepare PostgreSQL | check that data directory "{{ postgresql_data_dir }}" is exists
+  stat:
+    path: "{{ postgresql_data_dir }}/PG_VERSION"
+  register: pgdata_initialized
+#  - fail:
+#      msg: "Whoops! data directory {{ postgresql_data_dir }} is initialized, "
+#    when: pgdata_initialized.stat.exists
+  tags: [ postgresql_check_init ]
+
+#- name: Stop serivce | Stop postgreSQL service on standby server
+#  command: "{{ postgresql_bin_dir }}/pg_ctl stop -D {{ postgresql_data_dir }} -m fast"
+#  become: yes
+#  become_user: postgres
+#  ignore_errors: yes
+#  when: pgdata_initialized.stat.exists
+#  tags: stop_postgres
+
+
+- block:
+    - name: Stop serivce | Stop postgreSQL service on standby server
+      command: "{{ postgresql_bin_dir }}/pg_ctl stop -D {{ postgresql_data_dir }} -m fast"
+      ignore_errors: yes
+      tags: stop_postgres
+
+    - name: Clear postgreSQL data | Create dir ~/backup/postgres
+      file:
+        path: "~/backup/install"
+        state: directory
+        mode: '0755'
+
+    - name: Clear postgreSQL data | Archive {{ postgresql_data_dir }} to ~/backup/postgres
+      archive:
+        path: "{{ postgresql_data_dir }}"
+        dest: "~/backup/install/{{ hostname }}_data_{{ ansible_date_time.iso8601_basic_short}}.zip"
+        format: zip
+
+    - name: Clear postgreSQL data  | Remove postgreSQL data dir {{ postgresql_data_dir }}
+      file:
+        path: "{{ postgresql_data_dir }}"
+        state: absent
+  become: yes
+  become_user: postgres
+  when: pgdata_initialized.stat.exists
+  tags: clean_postgres_data
+
+#- name: Stop serivce | Stop Pgpool service on master server
+#  service:
+#    name: pgpool
+#    state: stoped
+#  ignore_errors: yes
+#  when: is_master == "true"
+#  tags: stop_pgpool
+#
+#- name: Stop serivce | Stop postgreSQL service on master server
+#  command: "{{ postgresql_bin_dir }}/pg_ctl stop -D {{ postgresql_data_dir }} -m fast"
+#  become: yes
+#  become_user: postgres
+#  ignore_errors: yes
+#  when: is_master == "true"
+#  tags: stop_postgres

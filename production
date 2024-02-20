@@ -1,0 +1,30 @@
+[master]
+172.28.1.11 hostname="node1"
+
+[replication]
+172.28.1.12 hostname="node2"
+172.28.1.13 hostname="node3"
+
+
+[postgres_cluster:children]
+master
+replication
+
+[all:vars]
+#PostgreSQL 超级用户密码(username: postgres)
+postgresql_superuser_password="postgres"
+
+#PostgreSQL 复制用户密码(username: repl)
+postgresql_replication_password="repl"
+
+#PostgreSQL pgpool用户密码(username: pgpool)
+postgresql_pgpool_password="pgpool"
+
+#Pgpool pcp 用户密码(username: pgpool)
+pgpool_pcp_password="pgpool"
+
+# 虚拟IP
+pgpool_vip="172.28.1.100"
+#vip绑定的网卡
+pgpool_vip_dev="eth0"
+

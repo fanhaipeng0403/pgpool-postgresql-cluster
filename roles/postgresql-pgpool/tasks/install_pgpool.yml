@@ -1,0 +1,8 @@
+---
+# Install Pgpool
+- name: Pgpool | install package
+  package:
+    name: "{{ item }}"
+  loop: "{{ pgpool_packages }}"
+  environment: '{{ proxy_env | default({}) }}'
+  tags: [ pgpool_install, pgpool ]

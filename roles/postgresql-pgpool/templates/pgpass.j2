@@ -1,0 +1,5 @@
+{% for host in groups['postgres_cluster'] %}
+{{ hostvars[host]['hostname'] }}:{{ postgresql_port }}:replication:{{ postgresql_replication_username }}:{{ postgresql_replication_password }}
+{{ hostvars[host]['hostname'] }}:{{ postgresql_port }}:postgres:{{ postgresql_superuser_username }}:{{ postgresql_superuser_password }}
+{% endfor %}
+{{ pgpool_vip }}:{{ pgpool_port }}:postgres:{{ postgresql_pgpool_username }}:{{ postgresql_pgpool_password }}

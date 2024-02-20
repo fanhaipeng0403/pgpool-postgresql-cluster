@@ -1,0 +1,39 @@
+---
+# Variable configuration.
+#- include_tasks: variables.yml
+#
+# Check vars tasks.
+- include_tasks: check_vars.yml
+
+# Check system tasks.
+- include_tasks: check_system.yml
+
+#Setup/install tasks.
+- include_tasks: setup_{{ansible_os_family}}.yml
+
+# Install packages tasks.
+- include_tasks: install_packages.yml
+
+# Install PostgreSQL  tasks.
+- include_tasks: install_postgresql.yml
+
+# Install repmgr tasks.
+- include_tasks: install_pgpool.yml
+
+# Add postgres user to sudo tasks.
+- include_tasks: sudo.yml
+
+# Configure System parameters tasks.
+- include_tasks: system_configure/main.yml
+
+# clean Postgresql and Pgpool service tasks.
+- include_tasks: clean_data.yml
+
+#Configure postgresql tasks.
+- include_tasks: postgresql_configure/main.yml
+
+#Configure pgpool tasks.
+- include_tasks: pgpool_configure.yml
+
+## installed verification
+#- include_tasks: deploy_verification.yml

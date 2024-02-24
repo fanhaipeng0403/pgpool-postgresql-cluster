@@ -5,4 +5,4 @@
     - name: ssh-copy
       authorized_key:
         user: root
-        key: "{{ lookup('file', '/home/root/.ssh/id_rsa.pub') }}"
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"

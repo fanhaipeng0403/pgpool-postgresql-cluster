@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4c79610f-be09-4833-9862-284eb4f5d2b5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LEARN" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/docker/ansible/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/docker/ansible/entrypoint.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/docker/centos/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/docker/docker-compose.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/production" beforeDir="false" afterPath="$PROJECT_DIR$/production" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LEARN" beforeDir="false" afterPath="$PROJECT_DIR$/LEARN" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/postgresql-cluster.yml" beforeDir="false" afterPath="$PROJECT_DIR$/postgresql-cluster.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +46,7 @@
       <option name="presentableId" value="Default" />
       <updated>1708439026177</updated>
       <workItem from="1708439027469" duration="568000" />
-      <workItem from="1708766061676" duration="2119000" />
+      <workItem from="1708766061676" duration="3997000" />
     </task>
     <servers />
   </component>

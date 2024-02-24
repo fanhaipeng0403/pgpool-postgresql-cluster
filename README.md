@@ -64,6 +64,13 @@
      建议配置： vCPU x 2核, 内存 16GB, (存储大小请根据实际业务需求规划)
      
      开放访问端口： 22/tcp, 5432/tcp, 6432/tcp, 9000/tcp, 9898/tcp, 9694/udp
+
+     22/tcp：SSH（Secure Shell）服务的默认端口，用于远程登录和安全Shell访问。
+     5432/tcp：PostgreSQL 数据库的默认端口，用于 PostgreSQL 服务器与客户端之间的通信。
+     6432/tcp：通常也用于 PostgreSQL 数据库，但是不是默认端口，可能是用户自定义的其他 PostgreSQL 实例端口。
+     9000/tcp：经常用于 Web 服务器（如 Nginx、Apache）和应用服务器（如 PHP-FPM）的默认端口。
+     9898/tcp：可能是用户自定义的应用程序端口，具体用途取决于用户的配置和实际情况。
+     9694/udp：也可能是用户自定义的应用程序端口，通常用于 UDP 协议通信，具体功能由用户进行配置。
    
    
   2. 准备安装主机：
@@ -99,15 +106,11 @@
   - 主机名: node3, ip: 172.28.1.13
   - vip: 172.28.1.100
     
-  1. 在Ansible主机上，下载或克隆repository
-      
-         #git clone https://gitee.com/dakuai/pgpool-postgresql-cluster.git
-      
-  2. 进入 postgresql-cluster 目录
+  1. 进入 postgresql-cluster 目录
   
          #cd postgresql-cluster
   
-  3. 编辑主机清单文件，设置部署安装的相关变量（hostname, vip, password等）
+  2. 编辑主机清单文件，设置部署安装的相关变量（hostname, vip, password等）
       
          #vim production
       

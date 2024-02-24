@@ -9,7 +9,7 @@
 
   tasks:
     - name: Copy SSH key to cluster nodes
-      authorized_key: user=root key="{{ lookup('file', '/home/tomcat/.ssh/id_rsa.pub') }}"
+      authorized_key: user=root key="{{ lookup('file', '/home/root/.ssh/id_rsa.pub') }}"
 
     - block:
         - name: Apply firewall role

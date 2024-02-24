@@ -1,5 +1,5 @@
 ---
-- hosts: postgres_cluster
+- hosts: replication
   user: root
   tasks:
     - name: ssh-copy

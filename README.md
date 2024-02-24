@@ -6,6 +6,11 @@
 
 **注意!**  本 Playbook 不支持在已有的PostgreSQL数据库服务器上部署集群（部署安装将会清空已存在数据库数据）。
 
+
+# 安装ansible常用模块
+
+ansible-galaxy collection install community.general
+
    
 ### 二、 使用限制和注意事项
 为保障集群的稳定可用，PostgreSQL有部分使用上的约束。

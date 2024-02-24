@@ -9,14 +9,7 @@
 
   tasks:
     - name: Copy SSH key to cluster nodes
-      ansible.builtin.ansible.posix.authorized_key:
-        user: root
-        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-        state: present
-      with_items:
-        - node1
-        - node2
-        - node3
+      authorized_key: user=root key="{{ lookup('file', '/home/tomcat/.ssh/id_rsa.pub') }}"
 
     - block:
         - name: Apply firewall role

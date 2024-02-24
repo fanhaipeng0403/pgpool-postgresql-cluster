@@ -80,18 +80,14 @@
      确保主机访问， Ansible 自动化部署需要root权限或sudo。示例：
    
      第一步，在运行Ansible主机上生成SSH密钥：
-    
+
          # ssh-keygen
-             
-     第二步，将密钥分配给群集节点主机。可以使用bash循环： 
-    
-         # for host in master.example.com \ 
-           node1 \ 
-           node2 \  
-           node3; \ 
-           do ssh-copy-id -i ~/.ssh/id_rsa.pub $host; \
-           done
-     
+
+     第二步，将密钥分配给群集节点主机。
+
+         # ansible-playbook  pushssh.yml  -i production
+
+
      第三步,确认可以通过SSH访问循环中列出的每个主机。
 
   3. 准备虚拟IP：

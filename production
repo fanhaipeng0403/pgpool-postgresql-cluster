@@ -1,9 +1,9 @@
 [master]
-172.28.1.11 hostname="node1"
+10.24.84.137 hostname="node1"
 
 [replication]
-172.28.1.12 hostname="node2"
-172.28.1.13 hostname="node3"
+10.24.84.170 hostname="node2"
+10.24.84.149 hostname="node3"
 
 
 [postgres_cluster:children]

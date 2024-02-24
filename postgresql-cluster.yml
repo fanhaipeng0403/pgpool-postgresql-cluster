@@ -7,9 +7,21 @@
   any_errors_fatal: true
   gather_facts: true
 
+  pre_tasks:
+    - name: Copy SSH key to cluster nodes
+      command: ssh-copy-id -i ~/.ssh/id_rsa.pub {{ item }}
+      with_items:
+        - node1
+        - node2
+        - node3
+
+
   roles:
     - role: firewall
+      when: ansible_virtualization_type !="docker"
     - role: postgresql-pgpool
+
+
 
   tasks:
     - import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml

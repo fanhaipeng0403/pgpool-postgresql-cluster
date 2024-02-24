@@ -7,22 +7,26 @@
   any_errors_fatal: true
   gather_facts: true
 
-  pre_tasks:
+  tasks:
     - name: Copy SSH key to cluster nodes
-      command: ssh-copy-id -i ~/.ssh/id_rsa.pub {{ item }}
+      ansible.builtin.ansible.posix.authorized_key:
+        user: root
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
       with_items:
         - node1
         - node2
         - node3
 
+    - block:
+        - name: Apply firewall role
+          include_role:
+            name: firewall
 
-  roles:
-    - role: firewall
-      when: ansible_virtualization_type !="docker"
-    - role: postgresql-pgpool
+        - name: Apply PostgreSQL-Pgpool role
+          include_role:
+            name: postgresql-pgpool
 
-
-
-  tasks:
-    - import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
-      tags: [ cluster_info, cluster_status ]
+    - name: Import tasks for deploy verification
+      import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
+      tags: [cluster_info, cluster_status]

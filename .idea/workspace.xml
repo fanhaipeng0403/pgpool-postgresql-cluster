@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4c79610f-be09-4833-9862-284eb4f5d2b5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/postgresql-cluster.yml" beforeDir="false" afterPath="$PROJECT_DIR$/postgresql-cluster.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +44,7 @@
       <option name="presentableId" value="Default" />
       <updated>1708439026177</updated>
       <workItem from="1708439027469" duration="568000" />
-      <workItem from="1708766061676" duration="4651000" />
+      <workItem from="1708766061676" duration="4918000" />
     </task>
     <servers />
   </component>

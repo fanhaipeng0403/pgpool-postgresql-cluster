@@ -27,6 +27,6 @@
           include_role:
             name: postgresql-pgpool
 
-    - name: Import tasks for deploy verification
+    - name: Deploy verification
       import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
       tags: [cluster_info, cluster_status]

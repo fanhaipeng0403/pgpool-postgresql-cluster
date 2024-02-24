@@ -1,9 +1,9 @@
 [master]
-10.247.84.137 hostname="node1"
+10.247.84.137 hostname="node1" ansible_user=root ansible_password=root
 
 [replication]
-10.247.84.170 hostname="node2"
-10.247.84.149 hostname="node3"
+10.247.84.170 hostname="node2" ansible_user=root ansible_password=root
+10.247.84.149 hostname="node3" ansible_user=root ansible_password=root
 
 
 [postgres_cluster:children]

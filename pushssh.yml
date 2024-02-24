@@ -1,0 +1,6 @@
+---
+- hosts: postgres_cluster
+  user: root
+  tasks:
+    - name: ssh-copy
+      authorized_key: user=hoxis key="{{ lookup('file', '/home/root/.ssh/id_rsa.pub') }}"

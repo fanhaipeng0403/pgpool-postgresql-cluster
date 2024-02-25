@@ -1,0 +1,7 @@
+---
+  # CentOS
+- name: Centos | install centos-release-scl-rh
+  yum:
+    name: centos-release-scl-rh
+    state: present
+  when: ansible_os_family == "CentOS"

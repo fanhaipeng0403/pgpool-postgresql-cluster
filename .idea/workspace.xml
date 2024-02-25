@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4c79610f-be09-4833-9862-284eb4f5d2b5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/roles/postgresql-pgpool/tasks/system_configure/llvm-toolset-7-clang.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/roles/postgresql-pgpool/tasks/system_configure/main.yml" beforeDir="false" afterPath="$PROJECT_DIR$/roles/postgresql-pgpool/tasks/system_configure/main.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +63,7 @@
       <updated>1708439026177</updated>
       <workItem from="1708439027469" duration="568000" />
       <workItem from="1708766061676" duration="8873000" />
-      <workItem from="1708821618726" duration="2362000" />
+      <workItem from="1708821618726" duration="4400000" />
     </task>
     <servers />
   </component>

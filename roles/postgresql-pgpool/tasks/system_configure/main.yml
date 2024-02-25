@@ -47,6 +47,12 @@
   ignore_errors: yes
   tags: [ ntp, configure ]
 
+# llvm-toolset-7-clang
+- include_tasks: llvm-toolset-7-clang.yml
+  ignore_errors: no
+  tags: [ llvm-toolset ]
+
+
 # SSH Keys
 - include_tasks: ssh-keys.yml
   when: enable_SSH_Key_based_authentication is defined and enable_SSH_Key_based_authentication == "true"

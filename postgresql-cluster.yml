@@ -16,8 +16,8 @@
         state: absent
       when: ansible_virtualization_type =="docker"
   roles:
-    - role: firewall
-      when: ansible_virtualization_type !="docker"
+#    - role: firewall
+#      when: ansible_virtualization_type !="docker"
     - role: postgresql-pgpool
 
 

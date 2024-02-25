@@ -7,17 +7,22 @@
   any_errors_fatal: true
   gather_facts: true
 
+  pre_tasks:
+    - include_vars:
+        dir: roles/postgresql-pgpool/vars
+    - name: fix nologin issue for docker | remove /var/run/nologin
+      file:
+        path: "/var/run/nologin"
+        state: absent
+      when: ansible_virtualization_type =="docker"
+  roles:
+    - role: firewall
+      when: ansible_virtualization_type !="docker"
+    - role: postgresql-pgpool
+
+
+
+  # finish (info)
   tasks:
-
-    - block:
-        - name: Apply firewall role
-          include_role:
-            name: firewall
-
-        - name: Apply PostgreSQL-Pgpool role
-          include_role:
-            name: postgresql-pgpool
-
-    - name: Deploy verification
-      import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
-      tags: [cluster_info, cluster_status]
+    - import_tasks: roles/postgresql-pgpool/tasks/deploy_verification.yml
+      tags: [ cluster_info, cluster_status ]
